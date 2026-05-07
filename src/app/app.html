@@ -1,0 +1,234 @@
+@if (showChrome) {
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg sticky-top app-navbar">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/home">
+      <span class="brand-icon"><i class="fa fa-code"></i></span>
+      <span class="brand-text">Hackathon<span class="brand-accent">Hub</span></span>
+    </a>
+
+    <button class="navbar-toggler" type="button" (click)="toggleNav()"
+      [class.active]="navOpen" aria-label="Toggle navigation">
+      <span class="toggler-bar"></span>
+      <span class="toggler-bar"></span>
+      <span class="toggler-bar"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" [class.show]="navOpen" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: false }">
+            <i class="fa fa-home"></i> Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fa fa-tachometer"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/submission" routerLinkActive="active">
+            <i class="fa fa-file-code-o"></i> Submissions
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/contact" routerLinkActive="active">
+            <i class="fa fa-envelope-o"></i> Contact
+          </a>
+        </li>
+
+        <!-- If role is blank -->
+        @if (loggedData?.role === '') {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/event" routerLinkActive="active">
+              <i class="fa fa-calendar"></i> Event
+            </a>
+          </li>
+        }
+
+        <!-- If logged in -->
+        @if (loggedData) {
+          <li class="nav-item dropdown user-menu" #userMenuEl [class.show]="dropdownOpen">
+            <a class="nav-link dropdown-toggle user-toggle" href="#" role="button"
+              (click)="toggleDropdown($event)" [attr.aria-expanded]="dropdownOpen" aria-label="User menu">
+              <span class="user-avatar" [class.has-image]="!!avatarUrl">
+                @if (avatarUrl) {
+                  <img [src]="avatarUrl" alt="Profile" />
+                } @else {
+                  {{ userInitial }}
+                }
+              </span>
+              <span class="user-email">{{ loggedData?.fullName || loggedData?.email || 'User' }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown" [class.show]="dropdownOpen">
+              <li class="dropdown-header user-card">
+                <div class="dh-avatar" [class.has-image]="!!avatarUrl">
+                  @if (avatarUrl) {
+                    <img [src]="avatarUrl" alt="Profile" />
+                  } @else {
+                    {{ userInitial }}
+                  }
+                </div>
+                <div class="dh-info">
+                  <div class="dh-name">{{ loggedData?.fullName || loggedData?.email || 'User' }}</div>
+                  <small class="dh-email">{{ loggedData?.email || '' }}</small>
+                </div>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item highlight" routerLink="/profile" (click)="closeDropdown()">
+                  <i class="fa fa-user-o"></i>
+                  <span>
+                    <strong>My Profile</strong>
+                    <small>View and edit your profile</small>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/dashboard" (click)="closeDropdown()">
+                  <i class="fa fa-tachometer"></i> Dashboard
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/submission" (click)="closeDropdown()">
+                  <i class="fa fa-file-code-o"></i> My Submissions
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item text-danger" href="#"
+                  (click)="$event.preventDefault(); openLogoutConfirm()">
+                  <i class="fa fa-sign-out"></i> Log Out
+                </a>
+              </li>
+            </ul>
+          </li>
+        } @else {
+          <!-- If not logged in -->
+          <li class="nav-item ms-lg-2">
+            <a routerLink="/register" class="btn btn-nav-cta">
+              <i class="fa fa-sign-in"></i> Log In
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>
+}
+
+<!-- Logout Confirm Modal -->
+@if (showLogoutConfirm) {
+  <div class="logout-overlay" (click)="cancelLogout()">
+    <div class="logout-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+      aria-labelledby="logoutTitle">
+      <div class="logout-icon">
+        <i class="fa fa-sign-out"></i>
+      </div>
+      <h3 id="logoutTitle">Log out of your account?</h3>
+      <p>
+        You'll be returned to the sign-in page and will need to log in again
+        to access your dashboard.
+      </p>
+      <div class="logout-actions">
+        <button type="button" class="btn-cancel" (click)="cancelLogout()"
+          [disabled]="loggingOut">
+          Cancel
+        </button>
+        <button type="button" class="btn-logout" (click)="confirmLogout()"
+          [disabled]="loggingOut">
+          @if (loggingOut) {
+            <span><i class="fa fa-spinner fa-spin"></i> Logging out...</span>
+          } @else {
+            <span><i class="fa fa-sign-out"></i> Yes, Log Out</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<router-outlet></router-outlet>
+
+@if (showChrome) {
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-glow"></div>
+
+  <div class="container">
+    <div class="row gy-5">
+      <div class="col-lg-4 col-md-6">
+        <a class="footer-brand" routerLink="/home">
+          <span class="brand-icon"><i class="fa fa-code"></i></span>
+          <span class="brand-text">Hackathon<span class="brand-accent">Hub</span></span>
+        </a>
+        <p class="footer-about">
+          The ultimate platform for organizing and participating in hackathons
+          and project competitions. Build, compete, and grow with thousands of
+          innovators worldwide.
+        </p>
+        <div class="social-link">
+          <a href="#" class="social-icon" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+          <a href="#" class="social-icon" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+          <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>
+          <a href="#" class="social-icon" aria-label="GitHub"><i class="fa fa-github"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-md-6 col-sm-6">
+        <h4 class="footer-title">Quick Links</h4>
+        <a href="#" class="footer-link">About Us</a>
+        <a href="#" class="footer-link">How It Works</a>
+        <a href="#" class="footer-link">Pricing</a>
+        <a href="#" class="footer-link">FAQ</a>
+      </div>
+
+      <div class="col-lg-2 col-md-6 col-sm-6">
+        <h4 class="footer-title">Participants</h4>
+        <a href="#" class="footer-link">Browse Competitions</a>
+        <a href="#" class="footer-link">My Registrations</a>
+        <a href="#" class="footer-link">Resources</a>
+        <a href="#" class="footer-link">Community</a>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <h4 class="footer-title">Stay in the Loop</h4>
+        <p class="footer-about mb-3">
+          Get updates on new hackathons, winners, and platform features —
+          straight to your inbox.
+        </p>
+        <form class="newsletter" (submit)="$event.preventDefault()">
+          <input type="email" class="newsletter-input" placeholder="Enter your email" aria-label="Email" />
+          <button type="submit" class="newsletter-btn">
+            <i class="fa fa-paper-plane"></i>
+          </button>
+        </form>
+        <div class="contact-line mt-3">
+          <i class="fa fa-envelope-o"></i> info&#64;hackathonhub.com
+        </div>
+        <div class="contact-line">
+          <i class="fa fa-phone"></i> +1 (555) 123-4567
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="mb-0">
+        &copy; 2026 <strong>HackathonHub</strong>. All rights reserved.
+      </p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <span>&middot;</span>
+        <a href="#">Terms of Service</a>
+        <span>&middot;</span>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+}

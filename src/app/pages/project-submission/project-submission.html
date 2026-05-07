@@ -1,0 +1,154 @@
+<div class="body">
+ 
+    <!-- Main Content -->
+    <div class="container py-5">
+        <h2 class="section-title">Project Submissions</h2>
+    
+        <!-- Statistics Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #3498db;">
+                    <i class="fa fa-file-code-o"></i>
+                </div>
+                <div class="stat-number">{{ totalSubmissions }}</div>
+                <div class="stat-label">Total Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #2ecc71;">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <div class="stat-number">{{ approvedCount }}</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #f39c12;">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+                <div class="stat-number">{{ underReviewCount }}</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #e74c3c;">
+                    <i class="fa fa-times-circle"></i>
+                </div>
+                <div class="stat-number">{{ rejectedCount }}</div>
+                <div class="stat-label">Rejected</div>
+            </div>
+        </div>
+
+
+        <!-- Search and Filters -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Filter Submissions</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="search-container">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" class="form-control search-input"
+                                placeholder="Search by project title, name, or email..." [(ngModel)]="searchTerm" (ngModelChange)="filterSubmissions()">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="filterSubmissions()">
+                            <option value="all">All Statuses</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="under review">Under Review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submissions Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Project Title</th>
+                                <th>Status</th>
+                                <th>Rank</th>
+                                <th>GitHub Link</th>
+                                <th>Participant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (item of filteredList; track item.submissionId) {
+                            <tr>
+                                <td>
+                                    <strong>{{ item.projectTitle }}</strong>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ item.Status.toLowerCase().replace(' ', '-') }}">
+                                        {{ item.Status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="rank-badge rank-{{ item.rank }}">{{ item.rank }}</div>
+                                </td>
+                                <td>
+                                    <a [href]="item.githubLink" class="github-link" target="_blank">
+                                        <i class="fa fa-github"></i> View
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <img [src]="'https://picsum.photos/seed/' + item.FullName + '/100/100.jpg'"
+                                            alt="User" class="user-avatar">
+                                        <div class="user-details">
+                                            <div class="user-name">{{ item.FullName }}</div>
+                                            <div class="user-email">{{ item.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button (click)="onApprove(item.submissionId)" class="action-btn view-btn">
+                                            <i class="fa fa-check"></i> Approve
+                                        </button>
+                                        <button (click)="onReject(item.submissionId)" class="action-btn delete-btn">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state mt-4" *ngIf="filteredList.length === 0">
+            <i class="fa fa-file-code-o fa-3x mb-3"></i>
+            <h4>No submissions found</h4>
+            <p>No submissions match your search criteria</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container mt-4">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

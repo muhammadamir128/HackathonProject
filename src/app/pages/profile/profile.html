@@ -1,0 +1,442 @@
+<div class="profile-page">
+    <!-- Cover / Header -->
+    <section class="profile-cover" [class.has-photo]="!!profile.avatarUrl">
+        @if (profile.avatarUrl) {
+            <div class="cover-bg" [style.background-image]="'url(' + profile.avatarUrl + ')'"></div>
+            <div class="cover-tint"></div>
+        }
+        <div class="cover-shape shape-1"></div>
+        <div class="cover-shape shape-2"></div>
+        <div class="cover-pattern"></div>
+
+        <div class="container">
+            <div class="cover-actions">
+                <a routerLink="/dashboard" class="cover-btn">
+                    <i class="fa fa-arrow-left"></i> Back to Dashboard
+                </a>
+                @if (!editing) {
+                    <button type="button" class="cover-btn primary" (click)="startEdit()">
+                        <i class="fa fa-pencil"></i> Edit Profile
+                    </button>
+                }
+            </div>
+        </div>
+    </section>
+
+    <div class="container profile-container">
+        <!-- Identity Card -->
+        <div class="identity-card">
+            <div class="avatar-wrap">
+                <div class="avatar" [class.has-image]="!!profile.avatarUrl">
+                    @if (profile.avatarUrl) {
+                        <img [src]="profile.avatarUrl" alt="{{ profile.fullName }}" />
+                    } @else {
+                        <span>{{ initials }}</span>
+                    }
+
+                    @if (uploading) {
+                        <div class="avatar-spinner">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                    }
+
+                    <label class="avatar-upload" title="Upload photo">
+                        <i class="fa fa-camera"></i>
+                        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif"
+                            (change)="onAvatarPick($event)" hidden />
+                    </label>
+                </div>
+                <div class="online-dot"></div>
+
+                @if (profile.avatarUrl) {
+                    <button type="button" class="avatar-remove" (click)="removeAvatar()"
+                        aria-label="Remove photo">
+                        <i class="fa fa-trash-o"></i> Remove
+                    </button>
+                }
+
+                @if (uploadError) {
+                    <div class="avatar-error">
+                        <i class="fa fa-exclamation-circle"></i> {{ uploadError }}
+                    </div>
+                }
+            </div>
+
+            <div class="identity-body">
+                @if (!editing) {
+                    <h1 class="user-name">
+                        {{ profile.fullName }}
+                        <span class="role-chip" [class.teacher]="profile.role === 'teacher'"
+                            [class.organizer]="profile.role === 'organizer'">
+                            <i class="fa fa-id-badge"></i> {{ profile.role | titlecase }}
+                        </span>
+                    </h1>
+                    <div class="meta-line">
+                        <span><i class="fa fa-envelope-o"></i> {{ profile.email || 'No email' }}</span>
+                        <span><i class="fa fa-graduation-cap"></i> {{ profile.collegeName || 'Not specified' }}</span>
+                        <span><i class="fa fa-map-marker"></i> {{ profile.location }}</span>
+                        <span><i class="fa fa-calendar-o"></i> Joined {{ profile.joinedAt | date: 'MMM yyyy' }}</span>
+                    </div>
+                    <p class="bio">{{ profile.bio }}</p>
+
+                    <div class="identity-actions">
+                        <a routerLink="/submission" class="btn-primary-ghost">
+                            <i class="fa fa-file-code-o"></i> My Submissions
+                        </a>
+                        <button type="button" class="btn-ghost">
+                            <i class="fa fa-share-alt"></i> Share
+                        </button>
+                        <button type="button" class="btn-ghost">
+                            <i class="fa fa-cog"></i> Settings
+                        </button>
+                    </div>
+                } @else {
+                    <div class="edit-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label>Full Name</label>
+                                <input type="text" [(ngModel)]="editModel.fullName" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Email</label>
+                                <input type="email" [(ngModel)]="editModel.email" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>College</label>
+                                <input type="text" [(ngModel)]="editModel.collegeName" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Location</label>
+                                <input type="text" [(ngModel)]="editModel.location" />
+                            </div>
+                            <div class="col-12">
+                                <label>Bio</label>
+                                <textarea rows="3" [(ngModel)]="editModel.bio"></textarea>
+                            </div>
+                        </div>
+                        <div class="edit-actions">
+                            <button type="button" class="btn-ghost" (click)="cancelEdit()">
+                                <i class="fa fa-times"></i> Cancel
+                            </button>
+                            <button type="button" class="btn-save" (click)="saveEdit()">
+                                <i class="fa fa-check"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 stats-row">
+            @for (s of stats; track s.label) {
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card" [class]="'stat-card variant-' + s.variant">
+                        <div class="stat-icon">
+                            <i class="fa fa-{{ s.icon }}"></i>
+                        </div>
+                        <div>
+                            <h3>{{ s.value }}</h3>
+                            <p>{{ s.label }}</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <button type="button" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+                <i class="fa fa-user-o"></i> Overview
+            </button>
+            <button type="button" [class.active]="activeTab === 'submissions'" (click)="setTab('submissions')">
+                <i class="fa fa-file-code-o"></i> Submissions
+            </button>
+            <button type="button" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">
+                <i class="fa fa-bell-o"></i> Activity
+            </button>
+            <button type="button" [class.active]="activeTab === 'settings'" (click)="setTab('settings')">
+                <i class="fa fa-cog"></i> Settings
+            </button>
+        </div>
+
+        <!-- Tab Panels -->
+        <div class="tab-content">
+            @if (activeTab === 'overview') {
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="panel">
+                            <h3 class="panel-title"><i class="fa fa-info-circle"></i> About Me</h3>
+                            <p class="about-text">{{ profile.bio }}</p>
+
+                            <h4 class="sub-title">Skills &amp; Expertise</h4>
+                            <div class="skills-wrap">
+                                @for (skill of skills; track skill) {
+                                    <span class="skill-chip">
+                                        {{ skill }}
+                                        <button type="button" (click)="removeSkill(skill)" aria-label="Remove skill">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </span>
+                                }
+                                <div class="skill-add">
+                                    <input type="text" [(ngModel)]="newSkill" (keyup.enter)="addSkill()"
+                                        placeholder="Add skill..." />
+                                    <button type="button" (click)="addSkill()" aria-label="Add skill">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="panel">
+                            <h3 class="panel-title"><i class="fa fa-trophy"></i> Badges</h3>
+                            <div class="badges-grid">
+                                @for (b of badges; track b.name) {
+                                    <div class="badge-item" [class]="'badge-item ' + b.color">
+                                        <div class="badge-icon"><i class="fa fa-{{ b.icon }}"></i></div>
+                                        <span>{{ b.name }}</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <h3 class="panel-title mt-4"><i class="fa fa-users"></i> Social</h3>
+                            <div class="social-grid">
+                                <a href="#" class="social-link"><i class="fa fa-github"></i> GitHub</a>
+                                <a href="#" class="social-link"><i class="fa fa-linkedin"></i> LinkedIn</a>
+                                <a href="#" class="social-link"><i class="fa fa-twitter"></i> Twitter</a>
+                                <a href="#" class="social-link"><i class="fa fa-globe"></i> Website</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (activeTab === 'submissions') {
+                <div class="panel">
+                    <h3 class="panel-title"><i class="fa fa-file-code-o"></i> My Submissions</h3>
+                    <div class="submissions-list">
+                        @for (s of recentSubmissions; track s.title) {
+                            <div class="submission-row">
+                                <div class="sub-left">
+                                    <div class="sub-icon">
+                                        <i class="fa fa-code"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ s.title }}</strong>
+                                        <small><i class="fa fa-trophy"></i> {{ s.event }}</small>
+                                    </div>
+                                </div>
+                                <div class="sub-date">
+                                    <i class="fa fa-calendar-o"></i> {{ s.date }}
+                                </div>
+                                <span class="sub-status" [class]="'sub-status ' + statusClass(s.status)">
+                                    {{ s.status }}
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (activeTab === 'activity') {
+                <div class="panel">
+                    <h3 class="panel-title"><i class="fa fa-bell-o"></i> Recent Activity</h3>
+                    <ul class="activity-list">
+                        @for (a of activity; track a.title) {
+                            <li class="activity-item">
+                                <div class="activity-icon" [class]="'activity-icon variant-' + a.variant">
+                                    <i class="fa fa-{{ a.icon }}"></i>
+                                </div>
+                                <div class="activity-body">
+                                    <div class="activity-title">{{ a.title }}</div>
+                                    <div class="activity-time">
+                                        <i class="fa fa-clock-o"></i> {{ a.time }}
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (activeTab === 'settings') {
+                <div class="panel">
+                    <h3 class="panel-title"><i class="fa fa-cog"></i> Account Settings</h3>
+                    <div class="settings-list">
+                        <div class="setting-row">
+                            <div>
+                                <strong>Email Notifications</strong>
+                                <p>Receive updates about competitions and submissions.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <strong>Public Profile</strong>
+                                <p>Make your profile visible to other users.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <strong>Two-Factor Authentication</strong>
+                                <p>Add an extra layer of security to your account.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <strong>Change Password</strong>
+                                <p>Update your password periodically for security.</p>
+                            </div>
+                            <button type="button" class="btn-ghost" (click)="togglePasswordForm()">
+                                <i class="fa" [class.fa-chevron-down]="!showPasswordForm"
+                                    [class.fa-chevron-up]="showPasswordForm"></i>
+                                {{ showPasswordForm ? 'Cancel' : 'Change' }}
+                            </button>
+                        </div>
+
+                        @if (pwdSuccess && !showPasswordForm) {
+                            <div class="form-banner success standalone">
+                                <i class="fa fa-check-circle"></i>
+                                <span>
+                                    <strong>Password updated</strong>
+                                    Your password has been changed. Use the new one next time you log in.
+                                </span>
+                            </div>
+                        }
+
+                        @if (showPasswordForm) {
+                            <div class="password-form-wrap">
+                                <form class="password-form" (ngSubmit)="submitPasswordChange()" autocomplete="off"
+                                    novalidate>
+                                    <h4><i class="fa fa-lock"></i> Update Password</h4>
+                                    <p class="form-hint">
+                                        Choose a strong password (min. 8 characters, include uppercase,
+                                        numbers, and symbols for best security).
+                                    </p>
+
+                                    @if (pwdError) {
+                                        <div class="form-banner error">
+                                            <i class="fa fa-exclamation-circle"></i>
+                                            <span>{{ pwdError }}</span>
+                                        </div>
+                                    }
+
+                                    <div class="form-field">
+                                        <label>Current Password</label>
+                                        <div class="pwd-input">
+                                            <i class="fa fa-lock"></i>
+                                            <input [type]="pwdVisible.current ? 'text' : 'password'"
+                                                [(ngModel)]="pwdModel.current" name="currentPwd"
+                                                placeholder="Enter current password" autocomplete="current-password" />
+                                            <button type="button" class="pwd-eye"
+                                                (click)="togglePwdVisibility('current')"
+                                                [attr.aria-label]="pwdVisible.current ? 'Hide' : 'Show'">
+                                                <i class="fa"
+                                                    [class.fa-eye]="!pwdVisible.current"
+                                                    [class.fa-eye-slash]="pwdVisible.current"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label>New Password</label>
+                                        <div class="pwd-input">
+                                            <i class="fa fa-key"></i>
+                                            <input [type]="pwdVisible.next ? 'text' : 'password'"
+                                                [(ngModel)]="pwdModel.next" name="newPwd"
+                                                placeholder="At least 8 characters" autocomplete="new-password" />
+                                            <button type="button" class="pwd-eye"
+                                                (click)="togglePwdVisibility('next')"
+                                                [attr.aria-label]="pwdVisible.next ? 'Hide' : 'Show'">
+                                                <i class="fa"
+                                                    [class.fa-eye]="!pwdVisible.next"
+                                                    [class.fa-eye-slash]="pwdVisible.next"></i>
+                                            </button>
+                                        </div>
+
+                                        @if (pwdModel.next) {
+                                            <div class="strength">
+                                                <div class="bars">
+                                                    <span [class.on]="pwdStrength.level >= 1"
+                                                        [attr.data-level]="pwdStrength.level"></span>
+                                                    <span [class.on]="pwdStrength.level >= 2"
+                                                        [attr.data-level]="pwdStrength.level"></span>
+                                                    <span [class.on]="pwdStrength.level >= 3"
+                                                        [attr.data-level]="pwdStrength.level"></span>
+                                                    <span [class.on]="pwdStrength.level >= 4"
+                                                        [attr.data-level]="pwdStrength.level"></span>
+                                                </div>
+                                                <small [attr.data-level]="pwdStrength.level">{{ pwdStrength.label }}</small>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label>Confirm New Password</label>
+                                        <div class="pwd-input">
+                                            <i class="fa fa-check-circle-o"></i>
+                                            <input [type]="pwdVisible.confirm ? 'text' : 'password'"
+                                                [(ngModel)]="pwdModel.confirm" name="confirmPwd"
+                                                placeholder="Re-type the new password" autocomplete="new-password" />
+                                            <button type="button" class="pwd-eye"
+                                                (click)="togglePwdVisibility('confirm')"
+                                                [attr.aria-label]="pwdVisible.confirm ? 'Hide' : 'Show'">
+                                                <i class="fa"
+                                                    [class.fa-eye]="!pwdVisible.confirm"
+                                                    [class.fa-eye-slash]="pwdVisible.confirm"></i>
+                                            </button>
+                                        </div>
+
+                                        @if (pwdModel.confirm && pwdModel.next && pwdModel.confirm !== pwdModel.next) {
+                                            <small class="field-hint error">
+                                                <i class="fa fa-times"></i> Passwords do not match.
+                                            </small>
+                                        } @else if (pwdModel.confirm && pwdModel.confirm === pwdModel.next) {
+                                            <small class="field-hint ok">
+                                                <i class="fa fa-check"></i> Passwords match.
+                                            </small>
+                                        }
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="button" class="btn-ghost" (click)="togglePasswordForm()">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn-save" [disabled]="pwdSubmitting">
+                                            @if (pwdSubmitting) {
+                                                <span><i class="fa fa-spinner fa-spin"></i> Updating...</span>
+                                            } @else {
+                                                <span><i class="fa fa-shield"></i> Update Password</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        }
+                        <div class="setting-row danger">
+                            <div>
+                                <strong>Delete Account</strong>
+                                <p>Permanently remove your account and all its data.</p>
+                            </div>
+                            <button type="button" class="btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

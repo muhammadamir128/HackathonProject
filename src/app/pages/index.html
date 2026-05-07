@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackathonHub Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* SCSS Variables */
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+            --text-color: #111827;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-4: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            --text-color: #f9fafb;
+            --card-bg: #1f2937;
+            --light-color: #111827;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            margin: 0 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 3px;
+        }
+
+        .dark-mode-toggle {
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            padding: 60px 0 40px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(30px, -30px);
+            }
+        }
+
+        .dashboard-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metric-trend {
+            font-size: 0.875rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trend-up {
+            color: #10b981;
+        }
+
+        .trend-down {
+            color: #ef4444;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .chart-container:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Activity Log */
+        .activity-log {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: start;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 0 -20px;
+        }
+
+        .activity-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        /* Custom Scrollbar */
+        .activity-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .activity-log::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        .activity-log::-webkit-scrollbar-thumb {
+            background: var(--gradient-1);
+            border-radius: 10px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            max-width: 350px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .notification-content {
+            color: var(--text-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa fa-code"></i> HackathonHub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#competitions">Competitions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#submissions">Submissions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#settings">Settings</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <button class="dark-mode-toggle" id="darkModeToggle">
+                            <i class="fa fa-moon"></i>
+                            <span>Dark Mode</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1 class="dashboard-title">Dashboard Overview</h1>
+            <p class="dashboard-subtitle">Welcome back! Here's a summary of your hackathon platform activity</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="showNotification('Create Competition', 'Navigate to the competition creation form')">
+                <i class="fa fa-plus"></i>
+                <span>Create Competition</span>
+            </button>
+            <button class="action-btn" onclick="showNotification('Invite Participants', 'Send invitations to potential participants')">
+                <i class="fa fa-users"></i>
+                <span>Invite Participants</span>
+            </button>
+            <button class="action-btn" onclick="showNotification('Export Report', 'Generate and download platform reports')">
+                <i class="fa fa-download"></i>
+                <span>Export Report</span>
+            </button>
+        </div>
+
+        <!-- Total Stats -->
+        <h2 class="section-title">Total Statistics</h2>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" style="background: var(--gradient-1); animation-delay: 0.1s;" onclick="showMetricDetails('Total Users', '426')">
+                    <div class="metric-icon" style="background: rgba(255, 255, 255, 0.2);">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span data-count="426">0</span>
+                    </div>
+                    <div class="metric-label">Total Users</div>
+                    <div class="metric-trend trend-up">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>12% from last month</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" style="background: var(--gradient-2); animation-delay: 0.2s;" onclick="showMetricDetails('Total Competitions', '135')">
+                    <div class="metric-icon" style="background: rgba(255, 255, 255, 0.2);">
+                        <i class="fa fa-trophy"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span data-count="135">0</span>
+                    </div>
+                    <div class="metric-label">Total Competitions</div>
+                    <div class="metric-trend trend-up">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>8% from last month</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" style="background: var(--gradient-3); animation-delay: 0.3s;" onclick="showMetricDetails('Total Submissions', '70')">
+                    <div class="metric-icon" style="background: rgba(255, 255, 255, 0.2);">
+                        <i class="fa fa-code-fork"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span data-count="70">0</span>
+                    </div>
+                    <div class="metric-label">Total Submissions</div>
+                    <div class="metric-trend trend-up">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>25% from last month</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" style="background: var(--gradient-4); animation-delay: 0.4s;" onclick="showMetricDetails('Winners Declared', '5')">
+                    <div class="metric-icon" style="background: rgba(255, 255, 255, 0.2);">
+                        <i class="fa fa-star"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span data-count="5">0</span>
+                    </div>
+                    <div class="metric-label">Winners Declared</div>
+                    <div class="metric-trend trend-up">
+                        <i class="fa fa-arrow-up"></i>
+                        <span>New this week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mt-4">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fa fa-chart-pie"></i>
+                        Competition Status
+                    </h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="competitionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fa fa-chart-bar"></i>
+                        Submission Distribution
+                    </h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="submissionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <h2 class="section-title mt-5">Recent Activity</h2>
+        <div class="activity-log">
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--gradient-1);">
+                    <i class="fa fa-trophy"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Winners declared for AI Innovation Challenge</div>
+                    <div class="activity-time">2 hours ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--gradient-3);">
+                    <i class="fa fa-check"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">15 new project submissions approved</div>
+                    <div class="activity-time">5 hours ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--gradient-4);">
+                    <i class="fa fa-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New competition "Web Dev Sprint" created</div>
+                    <div class="activity-time">1 day ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--gradient-2);">
+                    <i class="fa fa-user-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">25 new users registered</div>
+                    <div class="activity-time">2 days ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--gradient-1);">
+                    <i class="fa fa-flag"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Green Tech Hackathon completed successfully</div>
+                    <div class="activity-time">3 days ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification">
+        <div class="notification-header">
+            <div class="notification-title" id="notificationTitle"></div>
+            <button class="notification-close" onclick="hideNotification()">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-content" id="notificationContent"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            // Update dark mode toggle icon
+            const icon = darkModeToggle.querySelector('i');
+            const text = darkModeToggle.querySelector('span');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                text.textContent = 'Light Mode';
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                text.textContent = 'Dark Mode';
+            }
+        });
+        
+        // Notification System
+        function showNotification(title, content) {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationContent = document.getElementById('notificationContent');
+            
+            notificationTitle.textContent = title;
+            notificationContent.textContent = content;
+            
+            notification.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+        
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.remove('show');
+        }
+        
+        // Metric Details
+        function showMetricDetails(title, value) {
+            showNotification(title, `Total count: ${value}`);
+        }
+        
+        // Animated Counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('[data-count]');
+            
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-count');
+                const increment = target / 100;
+                
+                function updateCounter() {
+                    const count = +counter.innerText;
+                    
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + increment);
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.innerText = target;
+                    }
+                }
+                
+                // Start animation when element is in viewport
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            updateCounter();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                
+                observer.observe(counter);
+            });
+        }
+        
+        // Initialize Charts
+        function initializeCharts() {
+            // Competition Status Chart
+            const competitionCtx = document.getElementById('competitionChart').getContext('2d');
+            new Chart(competitionCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Upcoming', 'Active', 'Completed'],
+                    datasets: [{
+                        data: [15, 8, 12],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(236, 72, 153, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Submission Distribution Chart
+            const submissionCtx = document.getElementById('submissionChart').getContext('2d');
+            new Chart(submissionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Web', 'Mobile', 'AI', 'Blockchain', 'IoT'],
+                    datasets: [{
+                        label: 'Submissions',
+                        data: [12, 19, 8, 5, 6],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            animateCounters();
+            initializeCharts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<div class="body">
+  <!-- Main Content -->
+  <div class="container py-5">
+    <div class="row">
+      <!-- Competitions List (col-md-8) -->
+      <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="section-title">Competitions</h2>
+          <button class="btn btn-primary" id="add-competition-btn" (click)="resetForm()">
+            <i class="fa fa-plus"></i> Add Competition
+          </button>
+        </div>
+
+        <div id="competitions-list">
+          <div class="competition-card mb-3" *ngFor="let item of gridData; let i = index">
+            <div class="competition-header">
+              <h4>{{ item.title }}</h4>
+            </div>
+            <div class="competition-body">
+              <p>{{ item.description }}</p>
+              <div class="date-display">
+                <i class="fa fa-calendar"></i> {{ item.startDate }} <br />
+                <i class="fa fa-calendar-check"></i> {{ item.endDate }}
+              </div>
+            </div>
+            <div class="competition-footer">
+              <div class="action-buttons">
+                <button class="action-btn edit-btn" (click)="editCompetition(item)">
+                  <i class="fa fa-edit"></i> Edit
+                </button>
+                <button class="action-btn view-btn" routerLink="'/submission/'+ item.competitionId">
+                  <i class="fa fa-eye"></i> View Submissions
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteCompetition(item.competitionId)">
+                  <i class="fa fa-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="empty-state" class="empty-state" *ngIf="gridData.length === 0">
+          <i class="fa fa-trophy"></i>
+          <h4>No competitions yet</h4>
+          <p>Create your first competition to get started</p>
+        </div>
+      </div>
+
+      <!-- Competition Form (col-md-4) -->
+      <div class="col-md-4">
+        <div class="form-card">
+          <h3 class="form-title" id="form-title">Add New Competition</h3>
+          <form id="competition-form">
+            <input type="hidden" id="competition-id" [(ngModel)]="CompetationObj.competitionId" name="competitionId" />
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" [(ngModel)]="CompetationObj.title" class="form-control" id="title" name="title" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea [(ngModel)]="CompetationObj.description" class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="start-date" class="form-label">Start Date</label>
+              <input type="datetime-local" [(ngModel)]="CompetationObj.startDate" class="form-control" id="start-date" name="startDate" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="end-date" class="form-label">End Date</label>
+              <input type="datetime-local" [(ngModel)]="CompetationObj.endDate" class="form-control" id="end-date" name="endDate" required />
+            </div>
+
+            <div class="mb-4">
+              <label for="status" class="form-label">Status</label>
+              <select [(ngModel)]="CompetationObj.status" class="form-select" id="status" name="status" required>
+                <option value="upcoming">Upcoming</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="btn-group w-100">
+              <button type="button" (click)="onSave()" class="btn btn-primary">
+                <i class="fa fa-save"></i> Save Competition
+              </button>
+              <button type="button" class="btn btn-secondary" id="cancel-btn" (click)="cancelForm()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,274 @@
+<div class="contact-page">
+    <!-- Page Banner -->
+    <section class="contact-hero">
+        <div class="hero-shape shape-1"></div>
+        <div class="hero-shape shape-2"></div>
+        <div class="hero-shape shape-3"></div>
+
+        <div class="container text-center">
+            <span class="hero-badge">
+                <i class="fa fa-envelope-o"></i> Get in Touch
+            </span>
+            <h1 class="hero-title">
+                Let's <span class="gradient-text">Talk</span>
+            </h1>
+            <p class="hero-subtitle">
+                Questions, partnership ideas, or just want to say hi? We'd love to
+                hear from you. Our team usually replies within 24 hours.
+            </p>
+            <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                <a href="/home">Home</a>
+                <i class="fa fa-angle-right"></i>
+                <span>Contact</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Info Cards -->
+    <section class="info-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa fa-map-marker"></i></div>
+                        <h5>Our Office</h5>
+                        <p>123 Tech Street,<br />Innovation City, CA 94103</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa fa-phone"></i></div>
+                        <h5>Call Us</h5>
+                        <p>
+                            <a href="tel:+15551234567">+1 (555) 123-4567</a><br />
+                            Mon &mdash; Fri, 9am to 6pm
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa fa-envelope"></i></div>
+                        <h5>Email Us</h5>
+                        <p>
+                            <a href="mailto:info@hackathonhub.com">info&#64;hackathonhub.com</a><br />
+                            <a href="mailto:support@hackathonhub.com">support&#64;hackathonhub.com</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa fa-clock-o"></i></div>
+                        <h5>Office Hours</h5>
+                        <p>
+                            Mon &mdash; Fri: 9am &ndash; 6pm<br />
+                            Sat &mdash; Sun: Closed
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form + Highlights -->
+    <section class="form-section">
+        <div class="container">
+            <div class="row g-5 align-items-stretch">
+                <div class="col-lg-7">
+                    <div class="form-card">
+                        <span class="section-tag">Send Message</span>
+                        <h2 class="form-title">
+                            We'd love to hear <span class="gradient-text">from you</span>
+                        </h2>
+                        <p class="form-sub">
+                            Fill in the form below and we'll get back to you as soon as
+                            possible.
+                        </p>
+
+                        @if (submitted) {
+                            <div class="success-banner" role="alert">
+                                <i class="fa fa-check-circle"></i>
+                                <div>
+                                    <strong>Message sent!</strong>
+                                    <span> Thanks for reaching out — we'll reply within 24 hours.</span>
+                                </div>
+                            </div>
+                        }
+
+                        <form #contactForm="ngForm" (ngSubmit)="onSubmit(contactForm)" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <div class="input-wrap">
+                                        <i class="fa fa-user"></i>
+                                        <input type="text" id="name" name="name" class="form-control" placeholder="John Doe"
+                                            [(ngModel)]="model.name" #name="ngModel" required minlength="2" />
+                                    </div>
+                                    @if (name.invalid && name.touched) {
+                                        <small class="field-error">
+                                            @if (name.errors?.['required']) { Name is required. }
+                                            @else if (name.errors?.['minlength']) { Use at least 2 characters. }
+                                        </small>
+                                    }
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <div class="input-wrap">
+                                        <i class="fa fa-envelope-o"></i>
+                                        <input type="email" id="email" name="email" class="form-control"
+                                            placeholder="you@example.com" [(ngModel)]="model.email" #email="ngModel" required
+                                            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" />
+                                    </div>
+                                    @if (email.invalid && email.touched) {
+                                        <small class="field-error">
+                                            @if (email.errors?.['required']) { Email is required. }
+                                            @else if (email.errors?.['pattern']) { Enter a valid email address. }
+                                        </small>
+                                    }
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <div class="input-wrap">
+                                        <i class="fa fa-tag"></i>
+                                        <input type="text" id="subject" name="subject" class="form-control"
+                                            placeholder="How can we help?" [(ngModel)]="model.subject" #subject="ngModel" required />
+                                    </div>
+                                    @if (subject.invalid && subject.touched) {
+                                        <small class="field-error">Please enter a subject.</small>
+                                    }
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message</label>
+                                    <div class="input-wrap textarea-wrap">
+                                        <i class="fa fa-comment-o"></i>
+                                        <textarea id="message" name="message" rows="5" class="form-control"
+                                            placeholder="Write your message..." [(ngModel)]="model.message" #message="ngModel"
+                                            required minlength="10"></textarea>
+                                    </div>
+                                    @if (message.invalid && message.touched) {
+                                        <small class="field-error">
+                                            @if (message.errors?.['required']) { Message is required. }
+                                            @else if (message.errors?.['minlength']) { Message must be at least 10 characters. }
+                                        </small>
+                                    }
+                                </div>
+
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-submit" [disabled]="submitting">
+                                        @if (submitting) {
+                                            <span><i class="fa fa-spinner fa-spin"></i> Sending...</span>
+                                        } @else {
+                                            <span>Send Message <i class="fa fa-paper-plane"></i></span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="side-card">
+                        <span class="section-tag light">Why Reach Out</span>
+                        <h3>Here to Help at Every Step</h3>
+                        <p>
+                            Whether you're an organizer planning the next big hackathon or
+                            a developer with a question, our team is just a message away.
+                        </p>
+
+                        <ul class="feature-list">
+                            <li>
+                                <div class="feature-ico"><i class="fa fa-headphones"></i></div>
+                                <div>
+                                    <h6>24/7 Support</h6>
+                                    <small>Get help whenever you need it.</small>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="feature-ico"><i class="fa fa-users"></i></div>
+                                <div>
+                                    <h6>Partnership Inquiries</h6>
+                                    <small>Let's build something great together.</small>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="feature-ico"><i class="fa fa-life-ring"></i></div>
+                                <div>
+                                    <h6>Technical Help</h6>
+                                    <small>Stuck on a feature? We've got you.</small>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="feature-ico"><i class="fa fa-comments-o"></i></div>
+                                <div>
+                                    <h6>Feedback Welcome</h6>
+                                    <small>Your ideas shape the platform.</small>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="social-row">
+                            <span>Follow us</span>
+                            <div class="socials">
+                                <a href="#" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+                                <a href="#" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>
+                                <a href="#" aria-label="GitHub"><i class="fa fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container-fluid p-0">
+            <div class="map-wrapper">
+                <div class="map-overlay">
+                    <div class="overlay-header">
+                        <i class="fa fa-map-marker"></i>
+                        <h5>Visit Our Office</h5>
+                    </div>
+                    <p>
+                        We're located in the heart of Innovation City. Drop by for a
+                        coffee and a chat!
+                    </p>
+                    <ul>
+                        <li><strong>Address:</strong> 123 Tech Street, Innovation City, CA 94103</li>
+                        <li><strong>Phone:</strong> +1 (555) 123-4567</li>
+                        <li><strong>Hours:</strong> Mon &ndash; Fri, 9am &ndash; 6pm</li>
+                    </ul>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=San+Francisco,CA" target="_blank"
+                        rel="noopener" class="btn btn-directions">
+                        <i class="fa fa-location-arrow"></i> Get Directions
+                    </a>
+                </div>
+
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d100939.98555098464!2d-122.50764017832031!3d37.75781499999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1700000000000"
+                    width="100%" height="500" style="border:0;" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" title="Office location map">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ CTA -->
+    <section class="faq-cta">
+        <div class="container">
+            <div class="cta-box">
+                <div>
+                    <h3>Still have questions?</h3>
+                    <p>Check out our FAQ section for instant answers to common questions.</p>
+                </div>
+                <a href="#" class="btn btn-faq">
+                    Browse FAQ <i class="fa fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

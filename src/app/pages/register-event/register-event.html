@@ -1,0 +1,189 @@
+<!-- Main Content -->
+<div class="container py-5">
+  <!-- Competition Header -->
+  <div class="competition-header">
+    <h1 class="competition-title">AI Innovation Challenge 2025</h1>
+    <div class="competition-meta">
+      <div class="meta-item">
+        <i class="fa fa-calendar"></i>
+        <span>December 15-17, 2024</span>
+      </div>
+      <div class="meta-item">
+        <i class="fa fa-clock"></i>
+        <span>48 Hours</span>
+      </div>
+      <div class="meta-item">
+        <i class="fa fa-trophy"></i>
+        <span>$10,000 Prize Pool</span>
+      </div>
+    </div>
+    <div class="competition-status">
+      <i class="fa fa-check-circle"></i> Registration Open
+    </div>
+    <p class="competition-description">
+      Join us for an exciting 48-hour hackathon focused on artificial intelligence and machine learning solutions.
+      Build innovative projects that address real-world challenges using AI technologies.
+    </p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-steps">
+      <div class="step" [class.active]="isStepActive(1)" [class.completed]="isStepCompleted(1)">
+        <div class="step-circle">1</div>
+        <div class="step-label">Project Info</div>
+      </div>
+      <div class="step" [class.active]="isStepActive(2)" [class.completed]="isStepCompleted(2)">
+        <div class="step-circle">2</div>
+        <div class="step-label">Details</div>
+      </div>
+      <div class="step" [class.active]="isStepActive(3)" [class.completed]="isStepCompleted(3)">
+        <div class="step-circle">3</div>
+        <div class="step-label">Preview</div>
+      </div>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width]="getProgressWidth()"></div>
+    </div>
+  </div>
+
+  <!-- Alert Container -->
+  <div id="alert-container">
+    <div *ngIf="showAlert" [class]="'alert alert-' + alertType + ' alert-dismissible fade show'" role="alert">
+      <i
+        [class]="'fa ' + (alertType === 'success' ? 'fa-check-circle' : alertType === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle')"></i>
+      {{ alertMessage }}
+      <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
+    </div>
+  </div>
+
+  <!-- Submission Form -->
+  <div class="submission-form-card">
+    <h2 class="form-title">Submit Your Project</h2>
+
+    <form [formGroup]="submissionForm" (ngSubmit)="onSubmit()">
+      <!-- Project Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa fa-info-circle"></i> Project Information
+        </h3>
+
+        <div class="mb-4">
+          <label for="project-title" class="form-label">
+            Project Title <span class="required-mark">*</span>
+          </label>
+          <input type="text" formControlName="projectTitle" class="form-control" id="project-title"
+            placeholder="Enter your project title" required>
+          <div class="form-text">Give your project a clear and descriptive title</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="github-link" class="form-label">
+            GitHub Repository Link <span class="required-mark">*</span>
+          </label>
+          <div class="github-input-group">
+            <span class="input-group-text"><i class="fa fa-github"></i></span>
+            <input type="url" formControlName="githubLink" class="form-control" id="github-link"
+              placeholder="https://github.com/username/repository" required>
+          </div>
+          <div class="form-text">Provide a link to your project's GitHub repository</div>
+        </div>
+      </div>
+
+      <!-- Project Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa fa-file-text"></i> Project Details
+        </h3>
+
+        <div class="mb-4">
+          <label for="description" class="form-label">
+            Project Description <span class="required-mark">*</span>
+          </label>
+          <textarea class="form-control" formControlName="description" id="description" rows="6"
+            placeholder="Describe your project, its features, and the problem it solves" required></textarea>
+          <div class="form-text">Provide a detailed description of your project (max 500 words)</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="technologies" class="form-label">
+            Technologies Used
+          </label>
+          <input type="text" formControlName="technologies" class="form-control" id="technologies"
+            placeholder="e.g., Python, TensorFlow, React, Node.js">
+          <div class="form-text">List the technologies and frameworks you used in your project</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="demo-link" class="form-label">
+            Demo Video Link
+          </label>
+          <input type="url" class="form-control" formControlName="demoLink" id="demo-link"
+            placeholder="https://youtube.com/watch?v=...">
+          <div class="form-text">Optional: Provide a link to a demo video of your project</div>
+        </div>
+      </div>
+
+      <!-- Submission Status Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa fa-cog"></i> Submission Settings
+        </h3>
+
+        <div class="mb-4">
+          <label for="status" class="form-label">
+            Submission Status <span class="required-mark">*</span>
+          </label>
+          <select class="form-select" id="status" formControlName="status" required>
+            <option value="draft">Draft</option>
+            <option value="submitted">Submitted</option>
+            <option value="under-review">Under Review</option>
+          </select>
+          <div class="form-text">Select the current status of your submission</div>
+        </div>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="preview-section" [class.active]="showPreview">
+        <h3 class="preview-title">
+          <i class="fa fa-eye"></i> Project Preview
+        </h3>
+        <div class="preview-content">
+          <div class="preview-item">
+            <div class="preview-label">Project Title</div>
+            <div class="preview-value">{{ submissionForm.value.projectTitle || '-' }}</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Description</div>
+            <div class="preview-value">{{ submissionForm.value.description || '-' }}</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">GitHub Repository</div>
+            <div class="preview-value">{{ submissionForm.value.githubLink || '-' }}</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Technologies</div>
+            <div class="preview-value">{{ submissionForm.value.technologies || '-' }}</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Demo Video</div>
+            <div class="preview-value">{{ submissionForm.value.demoLink || '-' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button type="button" class="btn btn-primary btn-lg" (click)="updatePreview()">
+          <i class="fa fa-eye"></i> Preview Submission
+        </button>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <i class="fa fa-paper-plane"></i> Submit Project
+        </button>
+        <button type="button" class="btn btn-secondary btn-lg" (click)="saveDraft()">
+          <i class="fa fa-save"></i> Save as Draft
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

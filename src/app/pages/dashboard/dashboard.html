@@ -1,0 +1,250 @@
+<div class="dash-body">
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div class="hero-shape shape-1"></div>
+        <div class="hero-shape shape-2"></div>
+
+        <div class="container">
+            <div class="header-inner">
+                <div>
+                    <span class="greeting-pill">
+                        <i class="fa fa-hand-o-right"></i>
+                        Welcome back, {{ userName }}
+                    </span>
+                    <h1 class="dashboard-title">
+                        Dashboard <span class="gradient-text">Overview</span>
+                    </h1>
+                    <p class="dashboard-subtitle">
+                        Here's a summary of your hackathon platform activity for
+                        {{ currentDate | date: 'fullDate' }}.
+                    </p>
+                </div>
+
+                <div class="quick-actions">
+                    <button type="button" class="action-btn" (click)="onQuickAction('create')">
+                        <i class="fa fa-plus"></i>
+                        <span>Create Competition</span>
+                    </button>
+                    <button type="button" class="action-btn secondary" (click)="onQuickAction('invite')">
+                        <i class="fa fa-users"></i>
+                        <span>Invite</span>
+                    </button>
+                    <button type="button" class="action-btn secondary" (click)="onQuickAction('export')">
+                        <i class="fa fa-download"></i>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Metric Cards -->
+        <div class="row g-4 metrics-row">
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" (click)="showMetricDetails('Users', totalUsers)">
+                    <div class="metric-top">
+                        <div class="metric-icon variant-blue">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <i class="fa fa-arrow-up"></i> 12%
+                        </span>
+                    </div>
+                    <div class="metric-value">
+                        <span [attr.data-count]="totalUsers">0</span>
+                    </div>
+                    <div class="metric-label">Total Users</div>
+                    <div class="metric-progress">
+                        <div class="bar variant-blue" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" (click)="showMetricDetails('Competitions', totalCompetitions)">
+                    <div class="metric-top">
+                        <div class="metric-icon variant-purple">
+                            <i class="fa fa-trophy"></i>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <i class="fa fa-arrow-up"></i> 8%
+                        </span>
+                    </div>
+                    <div class="metric-value">
+                        <span [attr.data-count]="totalCompetitions">0</span>
+                    </div>
+                    <div class="metric-label">Total Competitions</div>
+                    <div class="metric-progress">
+                        <div class="bar variant-purple" style="width: 64%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" (click)="showMetricDetails('Submissions', totalSubmissions)">
+                    <div class="metric-top">
+                        <div class="metric-icon variant-green">
+                            <i class="fa fa-code-fork"></i>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <i class="fa fa-arrow-up"></i> 25%
+                        </span>
+                    </div>
+                    <div class="metric-value">
+                        <span [attr.data-count]="totalSubmissions">0</span>
+                    </div>
+                    <div class="metric-label">Total Submissions</div>
+                    <div class="metric-progress">
+                        <div class="bar variant-green" style="width: 52%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="metric-card" (click)="showMetricDetails('Winners', winnersDeclared)">
+                    <div class="metric-top">
+                        <div class="metric-icon variant-orange">
+                            <i class="fa fa-star"></i>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <i class="fa fa-arrow-up"></i> New
+                        </span>
+                    </div>
+                    <div class="metric-value">
+                        <span [attr.data-count]="winnersDeclared">0</span>
+                    </div>
+                    <div class="metric-label">Winners Declared</div>
+                    <div class="metric-progress">
+                        <div class="bar variant-orange" style="width: 35%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row g-4 mt-4">
+            <div class="col-xl-5 col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-head">
+                        <h3 class="chart-title">
+                            <i class="fa fa-pie-chart"></i> Competition Status
+                        </h3>
+                        <div class="chart-menu">
+                            <button type="button" class="chip">This Month</button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas #competitionChart></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-7 col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-head">
+                        <h3 class="chart-title">
+                            <i class="fa fa-bar-chart"></i> Submission Distribution
+                        </h3>
+                        <div class="chart-menu">
+                            <button type="button" class="chip active">6M</button>
+                            <button type="button" class="chip">1Y</button>
+                            <button type="button" class="chip">All</button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas #submissionChart></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Competitions + Activity -->
+        <div class="row g-4 mt-4">
+            <div class="col-xl-7">
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>
+                            <i class="fa fa-calendar"></i> Recent Competitions
+                        </h3>
+                        <a href="#" class="view-all">View all <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="comp-table">
+                            <thead>
+                                <tr>
+                                    <th>Competition</th>
+                                    <th>Date</th>
+                                    <th>Participants</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (comp of recentCompetitions; track comp.title) {
+                                    <tr>
+                                        <td>
+                                            <div class="comp-cell">
+                                                <div class="comp-avatar">
+                                                    {{ comp.title.charAt(0) }}
+                                                </div>
+                                                <span>{{ comp.title }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ comp.date }}</td>
+                                        <td>
+                                            <i class="fa fa-users text-muted"></i>
+                                            {{ comp.participants }}
+                                        </td>
+                                        <td>
+                                            <span class="status-pill" [class]="'status-pill ' + statusClass(comp.status)">
+                                                {{ comp.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-5">
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>
+                            <i class="fa fa-bell-o"></i> Recent Activity
+                        </h3>
+                        <a href="#" class="view-all">View all <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <ul class="activity-log">
+                        @for (activity of recentActivities; track activity.title) {
+                            <li class="activity-item">
+                                <div class="activity-icon" [class]="'activity-icon variant-' + activity.variant">
+                                    <i class="fa fa-{{ activity.icon }}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">{{ activity.title }}</div>
+                                    <div class="activity-time">
+                                        <i class="fa fa-clock-o"></i> {{ activity.time }}
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification" [class.show]="notification.show" role="status" aria-live="polite">
+        <div class="notification-icon"><i class="fa fa-info-circle"></i></div>
+        <div class="notification-body">
+            <div class="notification-title">{{ notification.title }}</div>
+            <div class="notification-content">{{ notification.content }}</div>
+        </div>
+        <button type="button" class="notification-close" (click)="hideNotification()" aria-label="Close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+</div>

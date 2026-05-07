@@ -1,0 +1,239 @@
+<div class="submissions-page">
+    <!-- Header -->
+    <section class="submissions-header">
+        <div class="hero-shape shape-1"></div>
+        <div class="hero-shape shape-2"></div>
+
+        <div class="container">
+            <div class="header-inner">
+                <div>
+                    <span class="section-pill">
+                        <i class="fa fa-file-code-o"></i> Submissions
+                    </span>
+                    <h1 class="page-title">
+                        Project <span class="gradient-text">Submissions</span>
+                    </h1>
+                    <p class="page-subtitle">
+                        Browse all competitions and review the projects participants have
+                        submitted.
+                    </p>
+                </div>
+
+                <div class="header-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()"
+                        placeholder="Search competitions..." />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="row g-4 stats-row">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-tile total">
+                    <div class="stat-icon"><i class="fa fa-folder-open-o"></i></div>
+                    <div>
+                        <h4>{{ totalCount }}</h4>
+                        <p>Total Competitions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-tile active">
+                    <div class="stat-icon"><i class="fa fa-play-circle-o"></i></div>
+                    <div>
+                        <h4>{{ activeCount }}</h4>
+                        <p>Active Now</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-tile upcoming">
+                    <div class="stat-icon"><i class="fa fa-calendar-o"></i></div>
+                    <div>
+                        <h4>{{ upcomingCount }}</h4>
+                        <p>Upcoming</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-tile completed">
+                    <div class="stat-icon"><i class="fa fa-check-circle-o"></i></div>
+                    <div>
+                        <h4>{{ completedCount }}</h4>
+                        <p>Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="filter-chips">
+                <button type="button" class="chip" [class.active]="statusFilter === 'all'"
+                    (click)="setFilter('all')">
+                    All <span class="count">{{ totalCount }}</span>
+                </button>
+                <button type="button" class="chip" [class.active]="statusFilter === 'active'"
+                    (click)="setFilter('active')">
+                    Active <span class="count">{{ activeCount }}</span>
+                </button>
+                <button type="button" class="chip" [class.active]="statusFilter === 'upcoming'"
+                    (click)="setFilter('upcoming')">
+                    Upcoming <span class="count">{{ upcomingCount }}</span>
+                </button>
+                <button type="button" class="chip" [class.active]="statusFilter === 'completed'"
+                    (click)="setFilter('completed')">
+                    Completed <span class="count">{{ completedCount }}</span>
+                </button>
+            </div>
+
+            <div class="view-toggle">
+                <button type="button" [class.active]="viewMode === 'grid'" (click)="setView('grid')"
+                    aria-label="Grid view">
+                    <i class="fa fa-th-large"></i>
+                </button>
+                <button type="button" [class.active]="viewMode === 'list'" (click)="setView('list')"
+                    aria-label="List view">
+                    <i class="fa fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        @if (loading) {
+            <div class="loading-state">
+                <i class="fa fa-spinner fa-spin"></i>
+                <p>Loading competitions...</p>
+            </div>
+        } @else if (filtered.length === 0) {
+            <!-- Empty -->
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa fa-folder-open-o"></i></div>
+                <h4>No competitions found</h4>
+                <p>
+                    @if (searchTerm || statusFilter !== 'all') {
+                        Try adjusting your search or filter settings.
+                    } @else {
+                        No competitions are available yet. Check back soon!
+                    }
+                </p>
+                @if (searchTerm || statusFilter !== 'all') {
+                    <button type="button" class="btn-clear"
+                        (click)="searchTerm = ''; setFilter('all')">
+                        <i class="fa fa-refresh"></i> Clear Filters
+                    </button>
+                }
+            </div>
+        } @else if (viewMode === 'grid') {
+            <!-- Grid View -->
+            <div class="row g-4">
+                @for (comp of paged; track comp.competitionId) {
+                    <div class="col-xl-4 col-md-6">
+                        <div class="submission-card">
+                            <div class="card-top">
+                                <div class="card-avatar">
+                                    {{ comp.title?.charAt(0)?.toUpperCase() }}
+                                </div>
+                                <span class="status-pill" [class]="'status-pill ' + statusClass(comp.status)">
+                                    {{ comp.status || 'N/A' }}
+                                </span>
+                            </div>
+
+                            <h4 class="card-title">{{ comp.title }}</h4>
+                            <p class="card-desc">{{ comp.description }}</p>
+
+                            <div class="card-meta">
+                                <span><i class="fa fa-calendar-o"></i> {{ comp.startDate }}</span>
+                                <span class="dot"></span>
+                                <span><i class="fa fa-flag-o"></i> {{ comp.endDate }}</span>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="submissions-count">
+                                    <i class="fa fa-file-code-o"></i>
+                                    <strong>{{ mockSubmissionCount(comp.competitionId) }}</strong>
+                                    <span>submissions</span>
+                                </div>
+                                <a [routerLink]="'/submission/' + comp.competitionId" class="btn-review">
+                                    Review <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        } @else {
+            <!-- List View -->
+            <div class="list-wrap">
+                <div class="list-head">
+                    <div class="col-title">Competition</div>
+                    <div class="col-dates">Dates</div>
+                    <div class="col-subs">Submissions</div>
+                    <div class="col-status">Status</div>
+                    <div class="col-action"></div>
+                </div>
+                @for (comp of paged; track comp.competitionId) {
+                    <div class="list-row">
+                        <div class="col-title">
+                            <div class="title-cell">
+                                <div class="card-avatar sm">
+                                    {{ comp.title?.charAt(0)?.toUpperCase() }}
+                                </div>
+                                <div>
+                                    <strong>{{ comp.title }}</strong>
+                                    <small>{{ comp.description | slice: 0 : 70 }}@if (comp.description && comp.description.length > 70) {...}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-dates">
+                            <div><i class="fa fa-calendar-o"></i> {{ comp.startDate }}</div>
+                            <small>to {{ comp.endDate }}</small>
+                        </div>
+                        <div class="col-subs">
+                            <i class="fa fa-file-code-o"></i>
+                            <strong>{{ mockSubmissionCount(comp.competitionId) }}</strong>
+                        </div>
+                        <div class="col-status">
+                            <span class="status-pill" [class]="'status-pill ' + statusClass(comp.status)">
+                                {{ comp.status || 'N/A' }}
+                            </span>
+                        </div>
+                        <div class="col-action">
+                            <a [routerLink]="'/submission/' + comp.competitionId" class="btn-review sm">
+                                Review <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Pagination -->
+        @if (!loading && filtered.length > pageSize) {
+            <nav class="pagination-wrap" aria-label="Submissions pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                        <button type="button" class="page-link" (click)="prevPage()"
+                            [disabled]="currentPage === 1">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                    </li>
+                    @for (page of pageNumbers; track page) {
+                        <li class="page-item" [class.active]="page === currentPage">
+                            <button type="button" class="page-link" (click)="goToPage(page)">{{ page }}</button>
+                        </li>
+                    }
+                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                        <button type="button" class="page-link" (click)="nextPage()"
+                            [disabled]="currentPage === totalPages">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
